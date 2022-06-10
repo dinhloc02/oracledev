@@ -160,3 +160,51 @@ select f.name name_faculty , s.name name_sutdent, s.gender from student s join f
 on f.id = s.faculty_id 
 where f.name in ('Anh - Văn' , 'Tin học')  and s.gender='Nam';
 -- 3. Cho biết sinh viên nào có điểm thi lần 1 môn cơ sở dữ liệu cao nhất
+select s.name , e.mark , sj.name from student s join exam_management e 
+on s.id = e.student_id 
+join subject sj on sj.id = e.student_id 
+where sj.name = 'Cơ sở dữ liệu' and e.number_of_exam_taking =1 and mark=(select max(mark) from student s join exam_management e 
+on s.id = e.student_id 
+join subject sj on sj.id = e.student_id 
+where sj.name = 'Cơ sở dữ liệu' and e.number_of_exam_taking =1);
+-- 4. Cho biết sinh viên khoa anh văn có tuổi lớn nhất.
+select s.name , s.birthday from student s join faculty f
+on s.faculty_id = f.id
+where f.name='Anh - Văn' and birthday =(select min(s.birthday) from student s join faculty f
+on s.faculty_id = f.id
+where f.name='Anh - Văn' );
+-- 5. Cho biết khoa nào có đông sinh viên nhất
+select count(s.name) , f.name from student s join faculty f
+on s.faculty_id = f.id 
+group by f.name 
+having count(s.name) = (select max(count(s.name)) from student s join faculty f
+on s.faculty_id = f.id 
+group by f.name );
+-- 6. Cho biết khoa nào có đông nữ nhất
+select count(s.name) , f.name from student s join faculty f
+on s.faculty_id = f.id 
+where s.gender ='Nữ'
+group by f.name 
+having count(s.name) = (select max(count(s.name)) from student s join faculty f
+on s.faculty_id = f.id 
+where s.gender ='Nữ'
+group by f.name );
+
+-- 8. Cho biết những khoa không có sinh viên học
+select f.name , s.name from faculty f left outer join student s
+on f.id = s.faculty_id
+where s.name ='null';
+-- 9. Cho biết sinh viên chưa thi môn cơ sở dữ liệu
+select s.name , sj.name from student s join exam_management e 
+on s.id = e.student_id join subject sj 
+on sj.id = e.student_id 
+where sj.name not in(select sj.name from student s join exam_management e 
+on s.id = e.student_id join subject sj 
+on sj.id = e.student_id
+where sj.name ='Cơ sở dữ liệu');
+    -- 10. Cho biết sinh viên nào không thi lần 1 mà có dự thi lần 2
+select  e.student_id, s.name, e.number_of_exam_taking from student s join exam_management e
+on s.id= e.student_id 
+where e.number_of_exam_taking = '2' and e.student_id
+not in (select e.student_id from student s join exam_management e
+on s.id= e.student_id where e.number_of_exam_taking =1 );

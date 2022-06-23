@@ -189,7 +189,17 @@ having count(s.name) = (select max(count(s.name)) from student s join faculty f
 on s.faculty_id = f.id 
 where s.gender ='Nữ'
 group by f.name );
-
+-- 7. Cho biết những sinh viên đạt điểm cao nhất trong từng môn
+with max_mark as (
+    select subject_id, max(mark) max_mark
+    from exam_management
+    group by subject_id
+)
+select s.name student, sb.name subject, mm.max_mark
+from student s
+join exam_management em on em.student_id = s.id
+join max_mark mm on mm.subject_id = em.subject_id and mm.max_mark = em.mark
+join subject sb on sb.id = mm.subject_id;
 -- 8. Cho biết những khoa không có sinh viên học
 select f.name , s.name from faculty f left outer join student s
 on f.id = s.faculty_id
